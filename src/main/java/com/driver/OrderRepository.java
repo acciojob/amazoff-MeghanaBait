@@ -76,32 +76,28 @@ public class OrderRepository {
       return  orderMap.size() - orderPartnerMap.size();
     }
 
-    public Integer getOrdersLeftAfterGivenTimeByPartnerId(String time, String partnerId) {
+    public Integer getOrdersLeftAfterGivenTimeByPartnerId(int time, String partnerId) {
         int count = 0;
-        int timeInMinutes = convertTimeToMinutes(time);
-        for(Order order : orderMap.values()){
-            if(timeInMinutes > order.getDeliveryTime())
-            {
+        List<String> orders = partnerOrderMap.get(partnerId);
+        for(String orderId : orders){
+            int deliveryTime = orderMap.get(orderId).getDeliveryTime();
+            if(deliveryTime > time){
                 count++;
             }
         }
         return count;
     }
 
-    private int convertTimeToMinutes(String time) {
-        String[] parts = time.split(":");
-        int hours = Integer.parseInt(parts[0]);
-        int mins = Integer.parseInt((parts[1]));
-        return hours * 60 + mins;
-    }
 
-    public String getLastDeliveryTimeByPartnerId(String partnerId) {
-        List<String>odrerList = partnerOrderMap.get(partnerId);
-        String lastOrderId = odrerList.get(odrerList.size() - 1);
-        int ordertime = orderMap.get(lastOrderId).getDeliveryTime();
-        int hours = ordertime/60;
-        int mins = ordertime% 60;
-        return ""+hours+":"+mins;
+
+    public int getLastDeliveryTimeByPartnerId(String partnerId) {
+       int maxTime = 0;
+       List<String> orders = partnerOrderMap.get(partnerId);
+       for (String orderId : orders){
+           int currentTime = orderMap.get(orderId).getDeliveryTime();
+           maxTime = Math.max(maxTime, currentTime);
+       }
+       return maxTime;
     }
 
     public void deletePartnerById(String partnerId) {

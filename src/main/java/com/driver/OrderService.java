@@ -49,11 +49,32 @@ public class OrderService {
     }
 
     public Integer getOrdersLeftAfterGivenTimeByPartnerId(String time, String partnerId) {
-        return orderRepository.getOrdersLeftAfterGivenTimeByPartnerId(time,partnerId);
+        int timeInMinutes = convertTimeToMinutes(time);
+
+        return orderRepository.getOrdersLeftAfterGivenTimeByPartnerId(timeInMinutes,partnerId);
+    }
+
+    private int convertTimeToMinutes(String time) {
+        String[] parts = time.split(":");
+        int hours = Integer.parseInt(parts[0]);
+        int mins = Integer.parseInt((parts[1]));
+        return hours * 60 + mins;
     }
 
     public String getLastDeliveryTimeByPartnerId(String partnerId) {
-        return orderRepository.getLastDeliveryTimeByPartnerId(partnerId);
+        int time = orderRepository.getLastDeliveryTimeByPartnerId(partnerId);
+        String HH = String.valueOf(time/60);
+        String MM = String.valueOf(time%60);
+
+        if (HH.length()< 2){
+            HH = '0' + HH;
+        }
+
+        if (MM.length() < 2){
+            MM = '0' + MM;
+        }
+
+        return HH+":"+MM;
     }
 
     public void deletePartnerById(String partnerId) {
