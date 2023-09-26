@@ -11,8 +11,8 @@ public class OrderService {
     OrderRepository orderRepository;
 
 
-    public void addUser(Order order) {
-        orderRepository.addUser(order);
+    public void addOrder(Order order) {
+        orderRepository.addOrder(order);
     }
 
     public void addPartner(String partnerId) {
