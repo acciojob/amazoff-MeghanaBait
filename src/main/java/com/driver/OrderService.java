@@ -62,7 +62,11 @@ public class OrderService {
     }
 
     public String getLastDeliveryTimeByPartnerId(String partnerId) {
+        String str = "00:00";
         int time = orderRepository.getLastDeliveryTimeByPartnerId(partnerId);
+        if(time == 0){
+            return str;
+        }
         String HH = String.valueOf(time/60);
         String MM = String.valueOf(time%60);
 

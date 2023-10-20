@@ -8,19 +8,28 @@ import java.util.List;
 
 @Repository
 public class OrderRepository {
-    HashMap<String, Order> orderMap = new HashMap<>();
-    HashMap<String, DeliveryPartner>partnerMap = new HashMap<>();
-    HashMap<String, List<String>> partnerOrderMap = new HashMap<>();
-    HashMap<String,String> orderPartnerMap = new HashMap<>();
+    HashMap<String, Order> orderMap;
+    HashMap<String, DeliveryPartner>partnerMap;
+    HashMap<String, List<String>> partnerOrderMap;
+    HashMap<String,String> orderPartnerMap;
+
+    public OrderRepository() {
+        this.orderMap = new HashMap<>();
+        this.partnerMap = new HashMap<>();
+        this.partnerOrderMap = new HashMap<>();
+        this.orderPartnerMap = new HashMap<>();
+    }
 
     public void addOrder(Order order) {
         String key = order.getOrderId();
         orderMap.put(key,order);
+        orderPartnerMap.put(key,"Not Assigned");
     }
 
     public void addPartner(String partnerId) {
         DeliveryPartner deliveryPartner = new DeliveryPartner(partnerId);
         partnerMap.put(partnerId,deliveryPartner);
+        partnerOrderMap.put(partnerId,new ArrayList<>());
     }
 
     public void addOrderPartnerPair(String orderId, String partnerId) {
@@ -29,16 +38,16 @@ public class OrderRepository {
             orderPartnerMap.put(orderId,partnerId);
 
             //adding into p-o map
-            List<String>currentOrders = new ArrayList<>();
-            if(partnerOrderMap.containsKey(partnerId)){
-                currentOrders = partnerOrderMap.get(partnerId);
-            }
-            currentOrders.add(orderId);
-            partnerOrderMap.put(partnerId,currentOrders);
 
-            //increase the no. of orders of partner
-            DeliveryPartner deliveryPartner = partnerMap.get(partnerId);
-            deliveryPartner.setNumberOfOrders(currentOrders.size());
+            if(partnerOrderMap.containsKey(partnerId)){
+                List<String>currentOrders = partnerOrderMap.get(partnerId);
+                currentOrders.add(orderId);
+                partnerOrderMap.put(partnerId,currentOrders);
+
+                //increase the no. of orders of partner
+                DeliveryPartner deliveryPartner = partnerMap.get(partnerId);
+                deliveryPartner.setNumberOfOrders(currentOrders.size());
+            }
         }
     }
 
@@ -55,7 +64,7 @@ public class OrderRepository {
     }
 
     public List<String> getOrdersByPartnerId(String partnerId) {
-       return partnerOrderMap.get(partnerId);
+        return partnerOrderMap.get(partnerId);
     }
 
 
@@ -73,12 +82,14 @@ public class OrderRepository {
     }
 
     public Integer getCountOfUnassignedOrders() {
-      return  orderMap.size() - orderPartnerMap.size();
+        return  orderMap.size() - orderPartnerMap.size();
     }
 
     public Integer getOrdersLeftAfterGivenTimeByPartnerId(int time, String partnerId) {
         int count = 0;
         List<String> orders = partnerOrderMap.get(partnerId);
+        if(orders.size() == 0) return 0;//no order assigned to partnerId
+
         for(String orderId : orders){
             int deliveryTime = orderMap.get(orderId).getDeliveryTime();
             if(deliveryTime > time){
@@ -91,13 +102,14 @@ public class OrderRepository {
 
 
     public int getLastDeliveryTimeByPartnerId(String partnerId) {
-       int maxTime = 0;
-       List<String> orders = partnerOrderMap.get(partnerId);
-       for (String orderId : orders){
-           int currentTime = orderMap.get(orderId).getDeliveryTime();
-           maxTime = Math.max(maxTime, currentTime);
-       }
-       return maxTime;
+        int maxTime = 0;
+        List<String> orders = partnerOrderMap.getOrDefault(partnerId,new ArrayList<>());
+        if(orders.size() == 0) return maxTime;
+        for (String orderId : orders){
+            int currentTime = orderMap.get(orderId).getDeliveryTime();
+            maxTime = Math.max(maxTime, currentTime);
+        }
+        return maxTime;
     }
 
     public void deletePartnerById(String partnerId) {
