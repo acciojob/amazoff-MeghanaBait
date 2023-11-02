@@ -49,9 +49,9 @@ public class OrderService {
     }
 
     public Integer getOrdersLeftAfterGivenTimeByPartnerId(String time, String partnerId) {
-        int timeInMinutes = convertTimeToMinutes(time);
+       // int timeInMinutes = convertTimeToMinutes(time);
 
-        return orderRepository.getOrdersLeftAfterGivenTimeByPartnerId(timeInMinutes,partnerId);
+        return orderRepository.getOrdersLeftAfterGivenTimeByPartnerId(time,partnerId);
     }
 
     private int convertTimeToMinutes(String time) {

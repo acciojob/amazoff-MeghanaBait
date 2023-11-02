@@ -85,17 +85,25 @@ public class OrderRepository {
         return  orderMap.size() - orderPartnerMap.size();
     }
 
-    public Integer getOrdersLeftAfterGivenTimeByPartnerId(int time, String partnerId) {
-        int count = 0;
-        List<String> orders = partnerOrderMap.get(partnerId);
-        if(orders.size() == 0) return 0;//no order assigned to partnerId
+    public Integer getOrdersLeftAfterGivenTimeByPartnerId(String time, String partnerId) {
+        Integer count=0;
+        //converting given string time to integer
+        String arr[]=time.split(":"); //12:45
+        int hr=Integer.parseInt(arr[0]);
+        int min=Integer.parseInt(arr[1]);
 
-        for(String orderId : orders){
-            int deliveryTime = orderMap.get(orderId).getDeliveryTime();
-            if(deliveryTime > time){
+        int total=(hr*60+min);
+
+        List<String> list=partnerOrderMap.getOrDefault(partnerId,new ArrayList<>());
+        if(list.size()==0)return 0; //no order assigned to partnerId
+
+        for(String s: list){
+            Order currentOrder=orderMap.get(s);
+            if(currentOrder.getDeliveryTime()>total){
                 count++;
             }
         }
+
         return count;
     }
 
